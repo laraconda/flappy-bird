@@ -11,7 +11,6 @@ void print_file(char *filename, unsigned int x, unsigned int y) {
 		int c;
 		for (c = getc(fp); c != EOF; c = getc(fp))
 			final_str[i++] = c;
-		printf("%s", final_str);
 		mvprintw(y, x, final_str);
 		fclose(fp);
 	} else {
@@ -34,7 +33,9 @@ int count_chars(FILE *fp) {
 
 void print_title() {
 	#define FFLAPPY_SRC "res/title.txt"
+	#define CREDITS_SRC "res/credits.txt"
 	print_file(FFLAPPY_SRC, 0, 0);
+	print_file(CREDITS_SRC, 0, 20);
 }
 
 
