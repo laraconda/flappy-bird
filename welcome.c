@@ -31,11 +31,13 @@ int count_chars(FILE *fp) {
 	return chars;
 }
 
-void print_title() {
+void print_title_screen() {
 	#define FFLAPPY_SRC "res/title.txt"
+	#define INST_SRC "res/instructions.txt"
 	#define CREDITS_SRC "res/credits.txt"
 	print_file(FFLAPPY_SRC, 0, 0);
-	print_file(CREDITS_SRC, 0, 20);
+	print_file(INST_SRC, 0, 20);
+	print_file(CREDITS_SRC, 0, 30);
 }
 
 
@@ -45,7 +47,7 @@ int main (void) {
 	cbreak();
 	curs_set(FALSE);
 	
-	print_title();
+	print_title_screen();
 	
 	refresh();
 	sleep(2);
