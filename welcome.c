@@ -3,6 +3,8 @@
 #include <stdlib.h>
 
 
+#define START_KEY 32  // spacebar
+
 void print_file(char *filename, unsigned int x, unsigned int y) {
 	FILE *fp;
 	if ((fp = fopen(filename, "r")) != NULL) {
@@ -40,6 +42,11 @@ void print_title_screen() {
 	print_file(CREDITS_SRC, 0, 30);
 }
 
+void press_key_to_start() {
+	while(getch() != START_KEY);
+	// start_game();
+	printf("%s", "start key pressed");
+}
 
 int main (void) {
 	initscr();
@@ -48,8 +55,9 @@ int main (void) {
 	curs_set(FALSE);
 	
 	print_title_screen();
-	
 	refresh();
-	sleep(2);
+
+	// wait for the player to press start
+	press_key_to_start();
 	endwin();
 }
