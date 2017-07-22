@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "game.h"
+
 
 #define START_KEY 32  // spacebar
 
@@ -44,8 +46,7 @@ void print_title_screen() {
 
 void press_key_to_start() {
 	while(getch() != START_KEY);
-	// start_game();
-	printf("%s", "start key pressed");
+	clear();
 }
 
 int main (void) {
@@ -59,5 +60,7 @@ int main (void) {
 
 	// wait for the player to press start
 	press_key_to_start();
+	start_game();
+	
 	endwin();
 }
