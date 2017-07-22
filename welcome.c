@@ -3,9 +3,8 @@
 #include <stdlib.h>
 
 #include "game.h"
+#include "keys.h"
 
-
-#define START_KEY 32  // spacebar
 
 void print_file(char *filename, unsigned int x, unsigned int y) {
 	FILE *fp;
@@ -45,16 +44,20 @@ void print_title_screen() {
 }
 
 void press_key_to_start() {
-	while(getch() != START_KEY);
+	while(getch() != SPACEBAR);
 	clear();
 }
 
-int main (void) {
+void config_ncurses(void) {
 	initscr();
 	noecho();
 	cbreak();
 	curs_set(FALSE);
-	
+}
+
+int main (void) {
+	config_ncurses();
+
 	print_title_screen();
 	refresh();
 
