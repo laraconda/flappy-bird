@@ -2,7 +2,6 @@
 #include <curses.h>
 #include <stdlib.h>
 
-#define SPEED 5
 #define FPS 15 // frames per second
 
 // using point as a simplified version of an obstacle.
@@ -20,36 +19,17 @@ char * get_point_string(void) {
 }
 
 void advance_point(void) {
-	po.x += SPEED * 1;
+	po.x += 1;
 }
 
 void periodic_events(void) {
 	advance_point();
 }
 
-void *game_clock(void * arg) {
-	while(alive) {
-		sleep(1);
-		periodic_events();
-	}
-
-	pthread_exit(NULL);
-}
-
-void init_game_clock(void) {
-	int rc;
-	pthread_t tid;
-	rc = pthread_create(&tid, NULL, &game_clock, NULL);
-	if (rc) {
-		fprintf(stderr, "cant create new thread! error code %d", rc);
-		exit(1);
-	}
-}
-
 void start_game(void) {
-	init_game_clock();
 	while(alive) {
 		clear();
+		periodic_events();
 		mvprintw(po.y, po.x, get_point_string());
 		refresh();
 		long loop_time = 1000000 / FPS; // 1000000 microsecs = 1s
