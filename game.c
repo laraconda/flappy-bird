@@ -40,7 +40,7 @@ void init_obstacle(unsigned int i) {
 
 void init_obstacles(void) {
 	unsigned int i;
-	n_obstacles = 10;
+	n_obstacles = (COLS/ (OBSTACLE_WIDTH + OBSTACLE_SPACING)) + 1;
 	pairs = malloc(
 		n_obstacles * sizeof(struct pair_of_obstacles));
 	for (i=0; i<n_obstacles; i++) {
