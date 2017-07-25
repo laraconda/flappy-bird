@@ -25,7 +25,7 @@ struct pair_of_obstacles* pairs;
 void init_obstacle(unsigned int i) {
 	struct obstacle obs_a = {OBSTACLE_WIDTH, 0};
 	struct obstacle obs_b = {OBSTACLE_WIDTH, LINES - 1};
-	pairs[i].x = (OBSTACLE_WIDTH + OBSTACLE_SPACING) * i * (-1);
+	pairs[i].x = COLS + (OBSTACLE_WIDTH + OBSTACLE_SPACING) * i * 1;
 	pairs[i].obs_a = obs_a;
 	pairs[i].obs_b = obs_b;
 }
@@ -41,7 +41,7 @@ void init_obstacles(void) {
 }
 
 void insert_obstacle_behind_its_next(unsigned int i) {
-	pairs[i].x = pairs[(i - 1 + n_obstacles) % n_obstacles].x -
+	pairs[i].x = pairs[(i - 1 + n_obstacles) % n_obstacles].x +
 		(OBSTACLE_SPACING + OBSTACLE_WIDTH);
 }
 
@@ -57,7 +57,7 @@ char * get_obstacle_repr(void) {
 
 unsigned char has_obstacle_finnished_its_track(
 		struct pair_of_obstacles obs) {
-	return (obs.x >= COLS);
+	return (obs.x == 0);
 }
 
 void advance_obstacles(void) {
@@ -66,7 +66,7 @@ void advance_obstacles(void) {
 		if (has_obstacle_finnished_its_track(pairs[i])) {
 			insert_obstacle_behind_its_next(i);
 		} else
-			pairs[i].x += 1;
+			pairs[i].x += -1;
 	}
 }
 
