@@ -72,7 +72,7 @@ void insert_obstacle_behind_its_next(unsigned int i) {
 		(OBSTACLE_SPACING + OBSTACLE_WIDTH);
 }
 
-char * get_obstacle_repr(char pos) {
+char * get_obstacle_block() {
 	char *cell = "@";
 	char s_local[OBSTACLE_WIDTH];
 	int i;
@@ -99,11 +99,15 @@ void advance_obstacles(void) {
 
 
 void print_obstacle(unsigned int i) {
-	char * obs_repr = get_obstacle_repr(1);
-	mvprintw(pairs[i].obs_a.y, pairs[i].x, obs_repr);
-	mvprintw(pairs[i].obs_b.y, pairs[i].x, obs_repr);
+	char * block = get_obstacle_block();
+	size_t j, k;
+	for (j = 0; j <= pairs[i].obs_a.y; j++)
+		mvprintw(j, pairs[i].x, block);
+	
+	for (k = pairs[i].obs_b.y; k < LINES; k++) 
+		mvprintw(k, pairs[i].x, block);
 
-	free(obs_repr);
+	free(block);
 	refresh();
 }
 
