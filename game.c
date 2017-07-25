@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <curses.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "obstacles.h"
 #include "keys.h"
@@ -9,26 +10,35 @@
 #define SECOND_IN_MICROSECONDS 1000000
 #define SPEED SECOND_IN_MICROSECONDS / FPS
 
+#define MAX_ACC 4.0
+
 
 struct bird {
 	char x;
 	char y;
+	float acc;
 };
 
 pthread_mutex_t bird_y_mutex;
 
 unsigned char alive = 1;
 
-struct bird b = {10, 2};
+struct bird b = {10, 2, 1.0};
 
 char *get_bird_repr(void) {
 	return ">>>";
 }
 
 void accelerate_bird(void) {
+	if (b.acc < MAX_ACC) {
 		pthread_mutex_lock(&bird_y_mutex);
-		b.y += 1; 
+		b.acc += 0.6; 
 		pthread_mutex_unlock(&bird_y_mutex);
+	}
+}
+
+void move_bird(void) {
+	b.y += (char)round(b.acc);
 }
 
 void print_bird(void) {
@@ -36,26 +46,10 @@ void print_bird(void) {
 	refresh();
 }
 
-unsigned char smooth_brake(
-	unsigned int i, unsigned int denominator,
-	unsigned int n_time_chunks, unsigned int* last) {
-	
-	unsigned int step = n_time_chunks / denominator;
-	if (i == ((*last + step) % n_time_chunks)) {
-		*last = i;
-		return 1;
-	} else
-		return 0;
-
-}
-
 void periodic_events(unsigned int i, unsigned int n_time_chunks) {
-	
-	static unsigned int last_for_accelerate[1];
-	if (smooth_brake(i, 5, n_time_chunks, last_for_accelerate))
-		accelerate_bird();  // doing 5/10 of the time.
-	
-	advance_obstacles();  // performing 1/1 of the time.
+	accelerate_bird();
+	advance_obstacles();
+	move_bird();
 	
 }
 
@@ -63,9 +57,8 @@ void *listen_controller(void * arg) {
 	while(alive) {
 		if (getch() == SPACEBAR) {
 			pthread_mutex_lock(&bird_y_mutex);
-			b.y -= 2; 
+			b.acc = -3.0; 
 			pthread_mutex_unlock(&bird_y_mutex);
-			usleep(SPEED);
 		}
 	}
 
