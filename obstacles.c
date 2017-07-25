@@ -1,15 +1,20 @@
 #include <string.h>
 #include <curses.h>
 #include <stdlib.h>
+#include <time.h>
 
-#define OBSTACLE_WIDTH 4
-#define OBSTACLE_SPACING 5
+#define OBSTACLE_WIDTH 6
+#define OBSTACLE_SPACING 20
+
+#define MIN_VERTICAL_GAP 15
+#define MAX_Y_DIFF_BETWEEN_NEIGHBORS 15
 
 
 // simplified version of an obstacle.
 struct obstacle {
 	char width;
 	char y;
+	char height;
 };
 
 struct pair_of_obstacles {
@@ -22,21 +27,43 @@ struct pair_of_obstacles {
 unsigned int n_obstacles;
 struct pair_of_obstacles* pairs;
 
-void init_obstacle(unsigned int i) {
-	struct obstacle obs_a = {OBSTACLE_WIDTH, 0};
-	struct obstacle obs_b = {OBSTACLE_WIDTH, LINES - 1};
+void init_obstacle(unsigned int i, char y0, char y1) {
+	struct obstacle obs_a = {OBSTACLE_WIDTH, y0, y0 + 1};
+	struct obstacle obs_b = {OBSTACLE_WIDTH, y1, LINES - y1};
 	pairs[i].x = COLS + (OBSTACLE_WIDTH + OBSTACLE_SPACING) * i * 1;
 	pairs[i].obs_a = obs_a;
 	pairs[i].obs_b = obs_b;
 }
 
+void generate_obstacles_y_positions(
+	char* last_y0, char* last_y1, unsigned int *seed) {
+	if (*last_y0 == -1 || *last_y1 == -1)
+		*last_y0 = rand_r(seed) % ((LINES - 1) - MIN_VERTICAL_GAP);
+	else {
+		unsigned int diff = rand_r(seed) % MAX_Y_DIFF_BETWEEN_NEIGHBORS;
+		if (*last_y0 < LINES/2)
+			*last_y0 = *last_y0 + diff;
+		else
+			*last_y0 = *last_y0 - diff;
+	}
+	if (*last_y0 + MIN_VERTICAL_GAP > LINES - 1)
+		*last_y0 = (LINES - 1) - MIN_VERTICAL_GAP;
+	*last_y1 = *last_y0 + MIN_VERTICAL_GAP;
+}
+
 void init_obstacles(void) {
+	srand(time(NULL));
 	unsigned int i;
 	n_obstacles = (COLS/ (OBSTACLE_WIDTH + OBSTACLE_SPACING)) + 1;
 	pairs = malloc(
 			n_obstacles * sizeof(struct pair_of_obstacles));
+
+	char last_y0[1] = {-1};
+	char last_y1[1] = {-1};
+	unsigned int seed = rand();
 	for (i=0; i<n_obstacles; i++) {
-		init_obstacle(i);
+		generate_obstacles_y_positions(last_y0, last_y1, &seed);
+		init_obstacle(i, *last_y0, *last_y1);
 	}
 }
 
@@ -45,7 +72,7 @@ void insert_obstacle_behind_its_next(unsigned int i) {
 		(OBSTACLE_SPACING + OBSTACLE_WIDTH);
 }
 
-char * get_obstacle_repr(void) {
+char * get_obstacle_repr(char pos) {
 	char *cell = "@";
 	char s_local[OBSTACLE_WIDTH];
 	int i;
@@ -72,7 +99,7 @@ void advance_obstacles(void) {
 
 
 void print_obstacle(unsigned int i) {
-	char * obs_repr = get_obstacle_repr();
+	char * obs_repr = get_obstacle_repr(1);
 	mvprintw(pairs[i].obs_a.y, pairs[i].x, obs_repr);
 	mvprintw(pairs[i].obs_b.y, pairs[i].x, obs_repr);
 
