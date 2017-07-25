@@ -26,9 +26,9 @@ char *get_bird_repr(void) {
 }
 
 void accelerate_bird(void) {
-	pthread_mutex_lock(&bird_y_mutex);
-	b.y += 1; 
-	pthread_mutex_unlock(&bird_y_mutex);
+		pthread_mutex_lock(&bird_y_mutex);
+		b.y += 1; 
+		pthread_mutex_unlock(&bird_y_mutex);
 }
 
 void print_bird(void) {
@@ -36,17 +36,36 @@ void print_bird(void) {
 	refresh();
 }
 
-void periodic_events(void) {
-	accelerate_bird();
-	advance_obstacles();
+unsigned char smooth_brake(
+	unsigned int i, unsigned int denominator,
+	unsigned int n_time_chunks, unsigned int* last) {
+	
+	unsigned int step = n_time_chunks / denominator;
+	if (i == ((*last + step) % n_time_chunks)) {
+		*last = i;
+		return 1;
+	} else
+		return 0;
+
+}
+
+void periodic_events(unsigned int i, unsigned int n_time_chunks) {
+	
+	static unsigned int last_for_accelerate[1];
+	if (smooth_brake(i, 5, n_time_chunks, last_for_accelerate))
+		accelerate_bird();  // doing 5/10 of the time.
+	
+	advance_obstacles();  // performing 1/1 of the time.
+	
 }
 
 void *listen_controller(void * arg) {
 	while(alive) {
 		if (getch() == SPACEBAR) {
 			pthread_mutex_lock(&bird_y_mutex);
-			b.y -= 1; 
+			b.y -= 2; 
 			pthread_mutex_unlock(&bird_y_mutex);
+			usleep(SPEED);
 		}
 	}
 
@@ -74,8 +93,14 @@ void start_game(void) {
 	init_obstacles();
 	init_controller_listener();
 	while(alive) {
+		unsigned int n_time_chunks = 10;
+		static unsigned int i;
+		if (i++ == n_time_chunks)  // dividing time in n_time_chunks
+			i = 0;
+		
 		print_screen();
-		periodic_events();
+		periodic_events(i, n_time_chunks);
+		
 		usleep(SPEED);
 	}
 	
