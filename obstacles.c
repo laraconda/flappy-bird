@@ -24,7 +24,7 @@ struct pair_of_obstacles {
 };
 
 unsigned int n_obstacles;
-struct pair_of_obstacles* pairs;
+struct pair_of_obstacles* pairs = NULL;
 
 void init_obstacle(unsigned int i, char y0, char y1) {
 	struct obstacle obs_a = {OBSTACLE_WIDTH, y0};
@@ -120,4 +120,12 @@ void print_obstacles(void) {
 
 void free_obstacles(void) {
 	free(pairs);
+}
+
+unsigned char is_there_any_obstacle_at_x(int x) {
+	unsigned int i; 	
+	for (i=0; i<n_obstacles; i++)
+		if (pairs[i].x == x)
+			return 1;
+	return 0;
 }

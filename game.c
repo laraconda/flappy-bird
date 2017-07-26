@@ -22,6 +22,7 @@ struct bird {
 pthread_mutex_t bird_y_mutex;
 
 unsigned char alive = 1;
+unsigned long score = 0;
 
 struct bird b = {10, 2, 1.0};
 
@@ -46,6 +47,11 @@ void print_bird(void) {
 	refresh();
 }
 
+void refresh_score(void) {
+	if (is_there_any_obstacle_at_x(b.x))
+		score += 1;
+}
+
 unsigned char is_bird_outside_bounds(void) {
 	// Not checking x because x its fixed.
 	return (b.y < 0 || b.y >= LINES);
@@ -60,7 +66,8 @@ void periodic_events(unsigned int i, unsigned int n_time_chunks) {
 	accelerate_bird();
 	advance_obstacles();
 	move_bird();
-	check_dead();	
+	refresh_score();
+	check_dead();
 }
 
 void *listen_controller(void * arg) {
@@ -92,9 +99,19 @@ void print_screen(void) {
 	print_bird();
 }
 
-void print_dead_message(void) {
+void print_score_message(void) {
+	char * score_s_template = "SCORE: %lu";
+	int buff_size = snprintf(NULL, 0, score_s_template, score);
+	char score_s[buff_size + 1];
+	snprintf(score_s, buff_size + 1, score_s_template, score);
+	mvprintw((LINES/2)+1, COLS/2, score_s);
+	refresh();
+}
+
+void print_death_message(void) {
 	clear();
 	mvprintw(LINES/2, COLS/2, "YOU JUST DIED BOI");
+	print_score_message();	
 	refresh();
 	sleep(2);
 }
@@ -116,5 +133,5 @@ void start_game(void) {
 	
 	pthread_mutex_destroy(&bird_y_mutex);
 	free_obstacles();
-	print_dead_message();
+	print_death_message();
 }
