@@ -14,8 +14,8 @@
 
 
 struct bird {
-	char x;
-	char y;
+	int x;
+	int y;
 	float acc;
 };
 
@@ -38,7 +38,7 @@ void accelerate_bird(void) {
 }
 
 void move_bird(void) {
-	b.y += (char)round(b.acc);
+	b.y += (int)round(b.acc);
 }
 
 void print_bird(void) {

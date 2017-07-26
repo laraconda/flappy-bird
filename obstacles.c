@@ -13,12 +13,11 @@
 // simplified version of an obstacle.
 struct obstacle {
 	char width;
-	char y;
-	char height;
+	int y;
 };
 
 struct pair_of_obstacles {
-	char x;
+	int x;
 	struct obstacle obs_a;
 	struct obstacle obs_b;
 
@@ -28,15 +27,15 @@ unsigned int n_obstacles;
 struct pair_of_obstacles* pairs;
 
 void init_obstacle(unsigned int i, char y0, char y1) {
-	struct obstacle obs_a = {OBSTACLE_WIDTH, y0, y0 + 1};
-	struct obstacle obs_b = {OBSTACLE_WIDTH, y1, LINES - y1};
+	struct obstacle obs_a = {OBSTACLE_WIDTH, y0};
+	struct obstacle obs_b = {OBSTACLE_WIDTH, y1};
 	pairs[i].x = COLS + (OBSTACLE_WIDTH + OBSTACLE_SPACING) * i * 1;
 	pairs[i].obs_a = obs_a;
 	pairs[i].obs_b = obs_b;
 }
 
 void generate_obstacles_y_positions(
-	char* last_y0, char* last_y1, unsigned int *seed) {
+	int* last_y0, int* last_y1, unsigned int *seed) {
 	if (*last_y0 == -1 || *last_y1 == -1)
 		*last_y0 = rand_r(seed) % ((LINES - 1) - MIN_VERTICAL_GAP);
 	else {
@@ -58,8 +57,8 @@ void init_obstacles(void) {
 	pairs = malloc(
 			n_obstacles * sizeof(struct pair_of_obstacles));
 
-	char last_y0[1] = {-1};
-	char last_y1[1] = {-1};
+	int last_y0[1] = {-1};
+	int last_y1[1] = {-1};
 	unsigned int seed = rand();
 	for (i=0; i<n_obstacles; i++) {
 		generate_obstacles_y_positions(last_y0, last_y1, &seed);
