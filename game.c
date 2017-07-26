@@ -46,11 +46,21 @@ void print_bird(void) {
 	refresh();
 }
 
+unsigned char is_bird_outside_bounds(void) {
+	// Not checking x because x its fixed.
+	return (b.y < 0 || b.y >= LINES);
+}
+
+void check_dead(void) {
+	if (is_bird_outside_bounds())
+		alive = 0;
+}
+
 void periodic_events(unsigned int i, unsigned int n_time_chunks) {
 	accelerate_bird();
 	advance_obstacles();
 	move_bird();
-	
+	check_dead();	
 }
 
 void *listen_controller(void * arg) {
@@ -82,6 +92,13 @@ void print_screen(void) {
 	print_bird();
 }
 
+void print_dead_message(void) {
+	clear();
+	mvprintw(LINES/2, COLS/2, "YOU JUST DIED BOI");
+	refresh();
+	sleep(2);
+}
+
 void start_game(void) {
 	init_obstacles();
 	init_controller_listener();
@@ -99,4 +116,5 @@ void start_game(void) {
 	
 	pthread_mutex_destroy(&bird_y_mutex);
 	free_obstacles();
+	print_dead_message();
 }
