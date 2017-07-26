@@ -99,16 +99,18 @@ void advance_obstacles(void) {
 
 
 void print_obstacle(unsigned int i) {
-	char * block = get_obstacle_block();
-	size_t j, k;
-	for (j = 0; j <= pairs[i].obs_a.y; j++)
-		mvprintw(j, pairs[i].x, block);
+	if (pairs[i].x >= 0 && pairs[i].x <= COLS - OBSTACLE_WIDTH) {
+		char * block = get_obstacle_block();
+		size_t j, k;
+		for (j = 0; j <= pairs[i].obs_a.y; j++)
+			mvprintw(j, pairs[i].x, block);
 	
-	for (k = pairs[i].obs_b.y; k < LINES; k++) 
-		mvprintw(k, pairs[i].x, block);
+		for (k = pairs[i].obs_b.y; k < LINES; k++) 
+			mvprintw(k, pairs[i].x, block);
 
-	free(block);
-	refresh();
+		free(block);
+		refresh();
+	}
 }
 
 void print_obstacles(void) {
