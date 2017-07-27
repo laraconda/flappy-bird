@@ -1,8 +1,10 @@
 #include <pthread.h>
 #include <curses.h>
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
+#include "externs.h"
 #include "obstacles.h"
 #include "keys.h"
 
@@ -47,9 +49,27 @@ void print_bird(void) {
 	refresh();
 }
 
+char* get_score_message(void) {
+	char *score_s_template = "SCORE: %lu";
+	int buff_size = snprintf(NULL, 0, score_s_template, score);
+	char *score_s = malloc(buff_size + 1);
+	snprintf(score_s, buff_size + 1, score_s_template, score);
+	return score_s;
+}
+
+void update_score_window(void) {
+	wclear(wscore);
+	char *score_message = get_score_message();
+	mvwprintw(wscore, 0, 0, score_message);
+	wrefresh(wscore);
+	free(score_message);
+}
+
 void refresh_score(void) {
-	if (is_there_any_obstacle_at_x(b.x))
+	if (is_there_any_obstacle_at_x(b.x)) {
 		score += 1;
+		update_score_window();
+	}
 }
 
 unsigned char is_bird_outside_bounds(void) {
@@ -99,13 +119,12 @@ void print_screen(void) {
 	print_bird();
 }
 
+
 void print_score_message(void) {
-	char * score_s_template = "SCORE: %lu";
-	int buff_size = snprintf(NULL, 0, score_s_template, score);
-	char score_s[buff_size + 1];
-	snprintf(score_s, buff_size + 1, score_s_template, score);
-	mvprintw((LINES/2)+1, COLS/2, score_s);
+	char *score_message = get_score_message();
+	mvprintw((LINES/2) + 1, COLS/2, score_message);
 	refresh();
+	free(score_message);
 }
 
 void print_death_message(void) {
@@ -116,7 +135,16 @@ void print_death_message(void) {
 	sleep(2);
 }
 
+void set_up_windows(void) {
+	wresize(stdscr, LINES - 1, COLS);
+   // WINDOW *wscore = NULL;
+	wscore = newwin(1, COLS, LINES - 1, 0);
+}
+
 void start_game(void) {
+	set_up_windows();
+	update_score_window();
+
 	init_obstacles();
 	init_controller_listener();
 	while(alive) {

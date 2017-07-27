@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//#include "externs.h"
+//extern WINDOW *wscore;
 #include "game.h"
 #include "keys.h"
 
+WINDOW *wscore = NULL;
 
 void print_file(char *filename, unsigned int x, unsigned int y) {
 	FILE *fp;
@@ -53,6 +56,9 @@ void config_ncurses(void) {
 	noecho();
 	cbreak();
 	curs_set(FALSE);
+/*	wresize(stdscr, LINES - 1, COLS);
+	WINDOW *putav = NULL;
+	putav = newwin(1, COLS, LINES - 1, 0); */
 }
 
 int main (void) {
