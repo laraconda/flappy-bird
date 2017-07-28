@@ -66,12 +66,32 @@ unsigned char is_there_any_obstacle_at_x(int x) {
     return 0;
 }
 
-
 void refresh_score(void) {
 	if (is_there_any_obstacle_at_x(b.x)) {
 		score += 1;
 		update_score_window();
 	}
+}
+
+// This only works for birds that are 1 line in height
+// and when the obstacles are rectangular.
+// Its easy to change it to support k lines in height
+// but it would only work if the bird is a rectangle.
+unsigned char is_bird_crashing_against_obstacles(void) {
+	int xobs1, x1 = b.x + get_bird_size();
+	unsigned int i;
+	int y0, y1;
+	for (i = 0; i<n_obstacles; i++) {
+		xobs1 = pairs[i].x + obs_sett.width;
+		y0 = pairs[i].obs_a.y;
+		y1 = pairs[i].obs_b.y;
+		if (((x1 >= pairs[i].x && b.x <= pairs[i].x) ||
+			(b.x <= xobs1 && x1 >= xobs1)) &&
+			((b.y >= y0 && b.y >= y1) || (b.y <= y1 && b.y <= y0))
+		)
+			return 1;
+	}
+	return 0;
 }
 
 unsigned char is_bird_outside_bounds(void) {
@@ -80,7 +100,8 @@ unsigned char is_bird_outside_bounds(void) {
 }
 
 void check_dead(void) {
-	if (is_bird_outside_bounds())
+	if (is_bird_outside_bounds() ||
+		is_bird_crashing_against_obstacles())
 		alive = 0;
 }
 
