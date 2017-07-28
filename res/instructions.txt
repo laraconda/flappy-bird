@@ -1,1 +1,3 @@
-Press spacebar to start
+Press SPACEBAR to start
+Press SPACEBAR to jump
+Press ESC to quit

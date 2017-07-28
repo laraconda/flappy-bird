@@ -115,11 +115,13 @@ void periodic_events(unsigned int i, unsigned int n_time_chunks) {
 
 void *listen_controller(void * arg) {
 	while(alive) {
-		if (getch() == SPACEBAR) {
+		char ch = getch();
+		if (ch == SPACEBAR) {
 			pthread_mutex_lock(&bird_acc_mutex);
 			b.acc = -3.0; 
 			pthread_mutex_unlock(&bird_acc_mutex);
-		}
+		} else if (ch == ESC) 
+			alive = 0;
 	}
 
 	pthread_exit(NULL);
@@ -189,6 +191,11 @@ void set_up_obstacles(void) {
 	init_obstacles(STD_WIN, pairs, n_obstacles, obs_sett);
 }
 
+void clean(void) {
+	pthread_mutex_destroy(&bird_acc_mutex);
+	free(pairs);
+}
+
 void start_game(void) {
 	set_up_windows();
 	update_score_window();
@@ -206,8 +213,6 @@ void start_game(void) {
 		
 		usleep(SPEED);
 	}
-	
-	pthread_mutex_destroy(&bird_acc_mutex);
-	free(pairs);
+	clean();	
 	print_death_message();
 }

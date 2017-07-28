@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include "externs.h"
-//extern WINDOW *wscore;
+#include "externs.h"
 #include "game.h"
 #include "keys.h"
 
@@ -46,9 +45,14 @@ void print_title_screen() {
 	print_file(CREDITS_SRC, 0, 30);
 }
 
-void press_key_to_start() {
-	while(getch() != SPACEBAR);
-	clear();
+unsigned char do_you_want_to_play(void) {
+	char ch = getch();
+	while(1) {
+		if (ch == SPACEBAR)
+			return 1;
+		else if (ch == ESC)
+			return 0;
+	}
 }
 
 void config_ncurses(void) {
@@ -56,9 +60,6 @@ void config_ncurses(void) {
 	noecho();
 	cbreak();
 	curs_set(FALSE);
-/*	wresize(stdscr, LINES - 1, COLS);
-	WINDOW *putav = NULL;
-	putav = newwin(1, COLS, LINES - 1, 0); */
 }
 
 int main (void) {
@@ -68,8 +69,10 @@ int main (void) {
 	refresh();
 
 	// wait for the player to press start
-	press_key_to_start();
-	start_game();
-	
+	// or press ESC to quit
+	if (do_you_want_to_play()) {
+		clear();
+		start_game();
+	}
 	endwin();
 }
