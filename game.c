@@ -1,9 +1,9 @@
 #include <pthread.h>
 #include <curses.h>
 #include <stdlib.h>
-#include <math.h>
 
 #include "externs.h"
+#include "bird.h"
 #include "obstacles.h"
 #include "keys.h"
 #include "nwindows.h"
@@ -17,11 +17,6 @@
 
 struct WIN_pos_size STD_WIN;
 
-struct bird {
-	int x;
-	int y;
-	float acc;
-};
 
 pthread_mutex_t bird_acc_mutex;
 
@@ -30,25 +25,12 @@ unsigned long score = 0;
 
 struct bird b = {10, 2, 1.0};
 
-char *get_bird_repr(void) {
-	return ">>>";
-}
-
 void accelerate_bird(void) {
 	if (b.acc < MAX_ACC) {
 		pthread_mutex_lock(&bird_acc_mutex);
 		b.acc += 0.6; 
 		pthread_mutex_unlock(&bird_acc_mutex);
 	}
-}
-
-void move_bird(void) {
-	b.y += (int)round(b.acc);
-}
-
-void print_bird(void) {
-	mvprintw(b.y, b.x, get_bird_repr());
-	refresh();
 }
 
 char* get_score_message(void) {
@@ -87,7 +69,7 @@ void check_dead(void) {
 void periodic_events(unsigned int i, unsigned int n_time_chunks) {
 	accelerate_bird();
 	advance_obstacles();
-	move_bird();
+	move_bird(&b);
 	refresh_score();
 	check_dead();
 }
@@ -118,7 +100,7 @@ void init_controller_listener(void) {
 void print_screen(void) {	
 	clear();
 	print_obstacles(STD_WIN);
-	print_bird();
+	print_bird(&b);
 }
 
 void print_score_message(void) {
