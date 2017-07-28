@@ -1,12 +1,12 @@
 #include <pthread.h>
 #include <curses.h>
-#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
 #include "externs.h"
 #include "obstacles.h"
 #include "keys.h"
+#include "nwindows.h"
 
 #define FPS 15 // frames per second
 #define SECOND_IN_MICROSECONDS 1000000
@@ -15,13 +15,15 @@
 #define MAX_ACC 4.0
 
 
+struct WIN_pos_size STD_WIN;
+
 struct bird {
 	int x;
 	int y;
 	float acc;
 };
 
-pthread_mutex_t bird_y_mutex;
+pthread_mutex_t bird_acc_mutex;
 
 unsigned char alive = 1;
 unsigned long score = 0;
@@ -34,9 +36,9 @@ char *get_bird_repr(void) {
 
 void accelerate_bird(void) {
 	if (b.acc < MAX_ACC) {
-		pthread_mutex_lock(&bird_y_mutex);
+		pthread_mutex_lock(&bird_acc_mutex);
 		b.acc += 0.6; 
-		pthread_mutex_unlock(&bird_y_mutex);
+		pthread_mutex_unlock(&bird_acc_mutex);
 	}
 }
 
@@ -74,7 +76,7 @@ void refresh_score(void) {
 
 unsigned char is_bird_outside_bounds(void) {
 	// Not checking x because x its fixed.
-	return (b.y < 0 || b.y >= LINES);
+	return (b.y < 0 || b.y >= STD_WIN.height);
 }
 
 void check_dead(void) {
@@ -93,9 +95,9 @@ void periodic_events(unsigned int i, unsigned int n_time_chunks) {
 void *listen_controller(void * arg) {
 	while(alive) {
 		if (getch() == SPACEBAR) {
-			pthread_mutex_lock(&bird_y_mutex);
+			pthread_mutex_lock(&bird_acc_mutex);
 			b.acc = -3.0; 
-			pthread_mutex_unlock(&bird_y_mutex);
+			pthread_mutex_unlock(&bird_acc_mutex);
 		}
 	}
 
@@ -105,7 +107,7 @@ void *listen_controller(void * arg) {
 void init_controller_listener(void) {
 	int rc;
 	pthread_t tid;
-	pthread_mutex_init(&bird_y_mutex, NULL);
+	pthread_mutex_init(&bird_acc_mutex, NULL);
 	rc = pthread_create(&tid, NULL, &listen_controller, NULL);
 	if (rc) {
 		fprintf(stderr, "cant create new thread! error code %d", rc);
@@ -115,29 +117,38 @@ void init_controller_listener(void) {
 
 void print_screen(void) {	
 	clear();
-	print_obstacles();
+	print_obstacles(STD_WIN);
 	print_bird();
 }
 
-
 void print_score_message(void) {
 	char *score_message = get_score_message();
-	mvprintw((LINES/2) + 1, COLS/2, score_message);
+	mvprintw(
+		(STD_WIN.height/2) + 1, STD_WIN.width/2, score_message);
 	refresh();
 	free(score_message);
 }
 
 void print_death_message(void) {
 	clear();
-	mvprintw(LINES/2, COLS/2, "YOU JUST DIED BOI");
+	mvprintw(
+		STD_WIN.height/2, STD_WIN.width/2, "YOU JUST DIED BOI");
 	print_score_message();	
 	refresh();
 	sleep(2);
 }
 
+void update_STD_WIN(
+	int startx, int starty, int height, int width) {
+	STD_WIN.startx = startx;
+	STD_WIN.starty = starty;
+	STD_WIN.width = width;
+	STD_WIN.height = height;
+}
+
 void set_up_windows(void) {
 	wresize(stdscr, LINES - 1, COLS);
-   // WINDOW *wscore = NULL;
+	update_STD_WIN(0, 0, LINES - 1, COLS);
 	wscore = newwin(1, COLS, LINES - 1, 0);
 }
 
@@ -145,7 +156,7 @@ void start_game(void) {
 	set_up_windows();
 	update_score_window();
 
-	init_obstacles();
+	init_obstacles(STD_WIN);
 	init_controller_listener();
 	while(alive) {
 		unsigned int n_time_chunks = 10;
@@ -159,7 +170,7 @@ void start_game(void) {
 		usleep(SPEED);
 	}
 	
-	pthread_mutex_destroy(&bird_y_mutex);
+	pthread_mutex_destroy(&bird_acc_mutex);
 	free_obstacles();
 	print_death_message();
 }
