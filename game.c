@@ -12,6 +12,11 @@
 #define SECOND_IN_MICROSECONDS 1000000
 #define SPEED SECOND_IN_MICROSECONDS / FPS
 
+#define OBSTACLE_WIDTH 6
+#define OBSTACLE_SPACING 20
+#define MIN_VERTICAL_GAP 15
+#define MAX_Y_DIFF_BETWEEN_NEIGHBORS 15
+
 #define MAX_ACC 4.0
 
 
@@ -24,6 +29,10 @@ unsigned char alive = 1;
 unsigned long score = 0;
 
 struct bird b = {10, 2, 1.0};
+
+struct obstacles_settings obs_sett;
+struct pair_of_obstacles *pairs = NULL;
+unsigned int n_obstacles;
 
 void accelerate_bird(void) {
 	if (b.acc < MAX_ACC) {
@@ -49,6 +58,15 @@ void update_score_window(void) {
 	free(score_message);
 }
 
+unsigned char is_there_any_obstacle_at_x(int x) {
+	unsigned int i;     
+	for (i=0; i<n_obstacles; i++)
+		if (pairs[i].x == x)
+			return 1;
+    return 0;
+}
+
+
 void refresh_score(void) {
 	if (is_there_any_obstacle_at_x(b.x)) {
 		score += 1;
@@ -68,7 +86,7 @@ void check_dead(void) {
 
 void periodic_events(unsigned int i, unsigned int n_time_chunks) {
 	accelerate_bird();
-	advance_obstacles();
+	advance_obstacles(pairs, n_obstacles, obs_sett);
 	move_bird(&b);
 	refresh_score();
 	check_dead();
@@ -99,7 +117,7 @@ void init_controller_listener(void) {
 
 void print_screen(void) {	
 	clear();
-	print_obstacles(STD_WIN);
+	print_obstacles(STD_WIN, pairs, n_obstacles, obs_sett);
 	print_bird(&b);
 }
 
@@ -134,11 +152,27 @@ void set_up_windows(void) {
 	wscore = newwin(1, COLS, LINES - 1, 0);
 }
 
+void fill_obstacle_settings(void) {
+	obs_sett.width = OBSTACLE_WIDTH;
+	obs_sett.spacing = OBSTACLE_SPACING;
+	obs_sett.min_vert_gap = MIN_VERTICAL_GAP;
+	obs_sett.max_vert_diff_neighbors =
+		MAX_Y_DIFF_BETWEEN_NEIGHBORS;
+}
+
+void set_up_obstacles(void) {
+	fill_obstacle_settings();
+	n_obstacles =
+		(STD_WIN.width / obs_sett.width + obs_sett.spacing) + 1;
+	pairs = malloc(n_obstacles * sizeof(struct pair_of_obstacles));
+	init_obstacles(STD_WIN, pairs, n_obstacles, obs_sett);
+}
+
 void start_game(void) {
 	set_up_windows();
 	update_score_window();
 
-	init_obstacles(STD_WIN);
+	set_up_obstacles();
 	init_controller_listener();
 	while(alive) {
 		unsigned int n_time_chunks = 10;
@@ -153,6 +187,6 @@ void start_game(void) {
 	}
 	
 	pthread_mutex_destroy(&bird_acc_mutex);
-	free_obstacles();
+	free(pairs);
 	print_death_message();
 }

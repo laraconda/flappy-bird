@@ -4,86 +4,70 @@
 #include <time.h>
 
 #include "nwindows.h"
+#include "obstacles.h"
 
-#define OBSTACLE_WIDTH 6
-#define OBSTACLE_SPACING 20
-
-#define MIN_VERTICAL_GAP 15
-#define MAX_Y_DIFF_BETWEEN_NEIGHBORS 15
-
-
-struct obstacle {
-	char width;
-	int y;
-};
-
-struct pair_of_obstacles {
-	int x;
-	struct obstacle obs_a;
-	struct obstacle obs_b;
-
-};
-
-unsigned int n_obstacles;
-struct pair_of_obstacles* pairs = NULL;
 
 void init_obstacle(
-	unsigned int i, char y0, char y1, int win_width) {
-	struct obstacle obs_a = {OBSTACLE_WIDTH, y0};
-	struct obstacle obs_b = {OBSTACLE_WIDTH, y1};
+	unsigned int i, char y0, char y1, int win_width,
+	struct pair_of_obstacles *pairs, struct obstacles_settings sett) {
+	struct obstacle obs_a = {sett.width, y0};
+	struct obstacle obs_b = {sett.width, y1};
 	pairs[i].x =
-		win_width + (OBSTACLE_WIDTH + OBSTACLE_SPACING) * i * 1;
+		win_width + (sett.width + sett.spacing) * i * 1;
 	pairs[i].obs_a = obs_a;
 	pairs[i].obs_b = obs_b;
 }
 
 void generate_obstacles_y_positions(
 	int* lasty0, int* lasty1, unsigned int *seed,
-	struct WIN_pos_size win) {
+	struct WIN_pos_size win, struct obstacles_settings sett) {
 	if (*lasty0 == -1 || *lasty1 == -1)
-		*lasty0 = rand_r(seed) % ((win.height - 1) - MIN_VERTICAL_GAP);
+		*lasty0 = rand_r(seed) % ((win.height-1) - sett.min_vert_gap);
 	else {
 		unsigned int diff = rand_r(seed) % 
-			MAX_Y_DIFF_BETWEEN_NEIGHBORS;
+			sett.max_vert_diff_neighbors;
 		if (*lasty0 < win.height / 2)
 			*lasty0 = *lasty0 + diff;
 		else
 			*lasty0 = *lasty0 - diff;
 	}
-	if (*lasty0 + MIN_VERTICAL_GAP > LINES - 1)
-		*lasty0 = (win.height - 1) - MIN_VERTICAL_GAP;
-	*lasty1 = *lasty0 + MIN_VERTICAL_GAP;
+	if (*lasty0 + sett.min_vert_gap > win.height - 1)
+		*lasty0 = (win.height - 1) - sett.min_vert_gap;
+	*lasty1 = *lasty0 + sett.min_vert_gap;
 }
 
-void init_obstacles(struct WIN_pos_size win) {
+
+void init_obstacles(
+	struct WIN_pos_size win, struct pair_of_obstacles *pairs,
+	unsigned int n_obstacles, struct obstacles_settings sett) {
+	
 	srand(time(NULL));
 	unsigned int i;
-	n_obstacles =
-		(COLS / (OBSTACLE_WIDTH + OBSTACLE_SPACING)) + 1;
-	pairs = malloc(
-		n_obstacles * sizeof(struct pair_of_obstacles));
 
 	int lasty0[1] = {-1};
 	int lasty1[1] = {-1};
 	unsigned int seed = rand();
 	for (i=0; i<n_obstacles; i++) {
-		generate_obstacles_y_positions(lasty0, lasty1, &seed, win);
-		init_obstacle(i, *lasty0, *lasty1, win.width);
+		generate_obstacles_y_positions(
+			lasty0, lasty1, &seed, win, sett);
+		init_obstacle(i, *lasty0, *lasty1, win.width, pairs, sett);
 	}
 }
 
-void insert_obstacle_behind_its_next(unsigned int i) {
+void insert_obstacle_behind_its_next(
+	unsigned int i, struct pair_of_obstacles *pairs,
+	unsigned int n_obstacles, struct obstacles_settings sett) {
 	pairs[i].x = pairs[(i - 1 + n_obstacles) % n_obstacles].x +
-		(OBSTACLE_SPACING + OBSTACLE_WIDTH);
+		(sett.spacing + sett.width);
 }
 
-char * get_obstacle_block() {
+char * get_obstacle_block(unsigned int width) {
 	char *cell = "@";
-	char s_local[OBSTACLE_WIDTH];
+	char s_local[width];
 	int i;
-	for (i=0; i<OBSTACLE_WIDTH; i++)
+	for (i=0; i<width; i++)
 		s_local[i] = *cell;
-	char *s = malloc(OBSTACLE_WIDTH * sizeof(char));
+	char *s = malloc(width * sizeof(char));
 	return strcpy(s, s_local);
 }
 
@@ -92,20 +76,24 @@ unsigned char has_obstacle_finnished_its_track(
 	return (obs.x == 0);
 }
 
-void advance_obstacles(void) {
+void advance_obstacles(
+		struct pair_of_obstacles *pairs, unsigned int n_obstacles,
+		struct obstacles_settings sett) {
 	unsigned int i;
 	for (i=0; i<n_obstacles; i++) {
 		if (has_obstacle_finnished_its_track(pairs[i])) {
-			insert_obstacle_behind_its_next(i);
+			insert_obstacle_behind_its_next(i, pairs, n_obstacles, sett);
 		} else
 			pairs[i].x += -1;
 	}
 }
 
-void print_obstacle(unsigned int i, struct WIN_pos_size win) {
+void print_obstacle(
+	struct WIN_pos_size win, struct pair_of_obstacles *pairs,
+	unsigned int i, struct obstacles_settings sett) {
 	if (pairs[i].x >= 0 &&
-		pairs[i].x <= win.width - OBSTACLE_WIDTH) {
-		char * block = get_obstacle_block();
+		pairs[i].x <= win.width - sett.width) {
+		char *block = get_obstacle_block(sett.width);
 		size_t j, k;
 		for (j = 0; j <= pairs[i].obs_a.y; j++)
 			mvprintw(j, pairs[i].x, block);
@@ -118,20 +106,11 @@ void print_obstacle(unsigned int i, struct WIN_pos_size win) {
 	}
 }
 
-void print_obstacles(struct WIN_pos_size win) {
+void print_obstacles(
+	struct WIN_pos_size win, struct pair_of_obstacles *pairs,
+	unsigned int n_obstacles, struct obstacles_settings sett) {
 	unsigned int i;
 	for (i=0; i<n_obstacles; i++)
-		print_obstacle(i, win);
+		print_obstacle(win, pairs, i, sett);
 }
 
-void free_obstacles(void) {
-	free(pairs);
-}
-
-unsigned char is_there_any_obstacle_at_x(int x) {
-	unsigned int i; 	
-	for (i=0; i<n_obstacles; i++)
-		if (pairs[i].x == x)
-			return 1;
-	return 0;
-}
