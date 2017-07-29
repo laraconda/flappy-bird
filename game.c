@@ -14,7 +14,7 @@
 
 #define OBSTACLE_WIDTH 6
 #define OBSTACLE_SPACING 20
-#define MIN_VERTICAL_GAP 10
+#define MIN_VERTICAL_GAP 20
 #define MAX_Y_DIFF_BETWEEN_NEIGHBORS 15
 
 #define MAX_ACC 4.0
@@ -186,7 +186,7 @@ void fill_obstacle_settings(void) {
 void set_up_obstacles(void) {
 	fill_obstacle_settings();
 	n_obstacles =
-		(STD_WIN.width / obs_sett.width + obs_sett.spacing) + 1;
+		(STD_WIN.width / (obs_sett.width + obs_sett.spacing)) + 1;
 
 	pairs = malloc(n_obstacles * sizeof(struct pair_of_obstacles));
 	init_obstacles(STD_WIN, pairs, n_obstacles, obs_sett);
