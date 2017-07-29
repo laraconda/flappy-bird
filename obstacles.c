@@ -24,15 +24,18 @@ void generate_obstacles_y_positions(
 	if (*lasty0 == -1 || *lasty1 == -1)
 		*lasty0 = rand_r(seed) % ((win.height-1) - sett.min_vert_gap);
 	else {
-		unsigned int diff = rand_r(seed) % 
+		unsigned int diff = rand_r(seed) %
 			sett.max_vert_diff_neighbors;
-		if (*lasty0 < win.height / 2)
+		unsigned char pos_or_neg = rand_r(seed) % 2;
+		if (pos_or_neg)
 			*lasty0 = *lasty0 + diff;
 		else
 			*lasty0 = *lasty0 - diff;
 	}
 	if (*lasty0 + sett.min_vert_gap > win.height - 1)
 		*lasty0 = (win.height - 1) - sett.min_vert_gap;
+	if (*lasty0 < 0)
+		*lasty0 = 0;
 	*lasty1 = *lasty0 + sett.min_vert_gap;
 }
 

@@ -14,7 +14,7 @@
 
 #define OBSTACLE_WIDTH 6
 #define OBSTACLE_SPACING 20
-#define MIN_VERTICAL_GAP 15
+#define MIN_VERTICAL_GAP 10
 #define MAX_Y_DIFF_BETWEEN_NEIGHBORS 15
 
 #define MAX_ACC 4.0
@@ -28,7 +28,7 @@ pthread_mutex_t bird_acc_mutex;
 unsigned char alive = 1;
 unsigned long score = 0;
 
-struct bird b = {10, 2, 1.0};
+struct bird b = {10, 2, 1.0}; // Initial bird position and acceleration
 
 struct obstacles_settings obs_sett;
 struct pair_of_obstacles *pairs = NULL;
@@ -187,6 +187,7 @@ void set_up_obstacles(void) {
 	fill_obstacle_settings();
 	n_obstacles =
 		(STD_WIN.width / obs_sett.width + obs_sett.spacing) + 1;
+
 	pairs = malloc(n_obstacles * sizeof(struct pair_of_obstacles));
 	init_obstacles(STD_WIN, pairs, n_obstacles, obs_sett);
 }
