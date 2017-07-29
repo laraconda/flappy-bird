@@ -54,7 +54,7 @@ unsigned char do_you_want_to_play(void) {
 			return 1;
 		else if (ch == ESC)
 			return 0;
-	usleep(1000);
+	usleep(100000);
 	}
 }
 

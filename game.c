@@ -123,6 +123,7 @@ void *listen_controller(void * arg) {
 			pthread_mutex_unlock(&bird_acc_mutex);
 		} else if (ch == ESC) 
 			alive = 0;
+		usleep(SPEED);
 	}
 
 	pthread_exit(NULL);
