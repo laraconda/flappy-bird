@@ -105,7 +105,7 @@ void check_dead(void) {
 		alive = 0;
 }
 
-void periodic_events(unsigned int i, unsigned int n_time_chunks) {
+void periodic_events(void) {
 	accelerate_bird();
 	advance_obstacles(pairs, n_obstacles, obs_sett);
 	move_bird(&b);
@@ -204,13 +204,9 @@ void start_game(void) {
 	set_up_obstacles();
 	init_controller_listener();
 	while(alive) {
-		unsigned int n_time_chunks = 10;
-		static unsigned int i;
-		if (i++ == n_time_chunks)  // dividing time in n_time_chunks
-			i = 0;
 		
 		print_screen();
-		periodic_events(i, n_time_chunks);
+		periodic_events();
 		
 		usleep(SPEED);
 	}
