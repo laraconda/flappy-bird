@@ -46,12 +46,13 @@ void print_title_screen() {
 }
 
 unsigned char do_you_want_to_play(void) {
-	char ch = getch();
 	while(1) {
+	char ch = getch();
 		if (ch == SPACEBAR)
 			return 1;
 		else if (ch == ESC)
 			return 0;
+	usleep(1000);
 	}
 }
 
