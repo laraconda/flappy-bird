@@ -135,6 +135,7 @@ void init_controller_listener(void) {
 	rc = pthread_create(&tid, NULL, &listen_controller, NULL);
 	if (rc) {
 		fprintf(stderr, "cant create new thread! error code %d", rc);
+		endwin();
 		exit(1);
 	}
 }

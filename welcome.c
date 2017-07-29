@@ -20,6 +20,7 @@ void print_file(char *filename, unsigned int x, unsigned int y) {
 		fclose(fp);
 	} else {
 		fprintf(stderr, "cant open file: %s", filename);
+		endwin();
 		exit(1);
 	}
 }
@@ -30,7 +31,8 @@ int count_chars(FILE *fp) {
 	for (c = getc(fp); c != EOF; c = getc(fp))
 		chars++;
 	if (fseek(fp, 0L, SEEK_SET) != 0) {
-		printf("Repositioning error.");
+		fprintf(stderr, "Repositioning error.");
+		endwin();
 		exit(1);
 	}
 	return chars;
