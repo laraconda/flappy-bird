@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+
+#include "externs.h" // remove
+
 #include "nwindows.h"
 #include "obstacles.h"
 
@@ -58,10 +61,17 @@ void init_obstacles(
 }
 
 void insert_obstacle_behind_its_next(
+	struct WIN_pos_size win,
 	unsigned int i, struct pair_of_obstacles *pairs,
 	unsigned int n_obstacles, struct obstacles_settings sett) {
-	pairs[i].x = pairs[(i - 1 + n_obstacles) % n_obstacles].x +
-		(sett.spacing + sett.width);
+	unsigned int seed = rand();
+	unsigned int next_i = (i - 1 + n_obstacles) % n_obstacles;
+	pairs[i].x = pairs[next_i].x + (sett.spacing + sett.width);
+	int lasty0[1] = {pairs[next_i].obs_a.y};
+	int lasty1[1] = {pairs[next_i].obs_b.y};
+	generate_obstacles_y_positions(lasty0, lasty1, &seed, win, sett);
+	pairs[i].obs_a.y = *lasty0;
+	pairs[i].obs_b.y = *lasty1;
 }
 
 char * get_obstacle_block(unsigned int width) {
@@ -80,12 +90,13 @@ unsigned char has_obstacle_finnished_its_track(
 }
 
 void advance_obstacles(
-		struct pair_of_obstacles *pairs, unsigned int n_obstacles,
-		struct obstacles_settings sett) {
+	struct WIN_pos_size win, struct pair_of_obstacles *pairs,
+	unsigned int n_obstacles, struct obstacles_settings sett) {
 	unsigned int i;
 	for (i=0; i<n_obstacles; i++) {
 		if (has_obstacle_finnished_its_track(pairs[i])) {
-			insert_obstacle_behind_its_next(i, pairs, n_obstacles, sett);
+			insert_obstacle_behind_its_next(
+				win, i, pairs, n_obstacles, sett);
 		} else
 			pairs[i].x += -1;
 	}
@@ -115,5 +126,6 @@ void print_obstacles(
 	unsigned int i;
 	for (i=0; i<n_obstacles; i++)
 		print_obstacle(win, pairs, i, sett);
+
 }
 

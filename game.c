@@ -28,10 +28,11 @@ pthread_mutex_t bird_acc_mutex;
 unsigned char alive = 1;
 unsigned long score = 0;
 
-struct bird b = {10, 2, 1.0}; // Initial bird position and acceleration
+// Initial bird position and acceleration
+struct bird b = {10, 2, 1.0}; 
 
 struct obstacles_settings obs_sett;
-struct pair_of_obstacles *pairs = NULL;
+struct pair_of_obstacles *pairs;
 unsigned int n_obstacles;
 
 void accelerate_bird(void) {
@@ -107,7 +108,7 @@ void check_dead(void) {
 
 void periodic_events(void) {
 	accelerate_bird();
-	advance_obstacles(pairs, n_obstacles, obs_sett);
+	advance_obstacles(STD_WIN, pairs, n_obstacles, obs_sett);
 	move_bird(&b);
 	refresh_score();
 	check_dead();
@@ -185,8 +186,9 @@ void fill_obstacle_settings(void) {
 
 void set_up_obstacles(void) {
 	fill_obstacle_settings();
-	n_obstacles =
-		(STD_WIN.width / (obs_sett.width + obs_sett.spacing)) + 1;
+
+	n_obstacles = (
+		STD_WIN.width / (obs_sett.width + obs_sett.spacing)) + 1;
 
 	pairs = malloc(n_obstacles * sizeof(struct pair_of_obstacles));
 	init_obstacles(STD_WIN, pairs, n_obstacles, obs_sett);

@@ -21,8 +21,11 @@ struct obstacles_settings {
 void print_obstacles(
     struct WIN_pos_size win, struct pair_of_obstacles *pairs,
     unsigned int, struct obstacles_settings sett);
+
 void init_obstacles(
     struct WIN_pos_size win, struct pair_of_obstacles *pairs,
     unsigned int, struct obstacles_settings sett);
-void advance_obstacles(struct pair_of_obstacles *pairs,
-	unsigned int, struct obstacles_settings sett);
+
+void advance_obstacles(
+    struct WIN_pos_size win, struct pair_of_obstacles *pairs,
+    unsigned int, struct obstacles_settings sett);
