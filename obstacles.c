@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-#include "externs.h" // remove
-
 #include "nwindows.h"
 #include "obstacles.h"
 
