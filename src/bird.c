@@ -22,7 +22,6 @@ int get_bird_size(void) {
 	int i = 0;
 	char *br = BIRD_REPR;
 	while(br[i++] != 0x00); 
-	int size = i - 1;
-	return size;	
+	return i - 1;
 }
 

@@ -74,10 +74,12 @@ void refresh_score(void) {
 	}
 }
 
-// This only works for birds that are 1 line in height
-// and when the obstacles are rectangular.
-// Its easy to change it to support k lines in height
-// but it would only work if the bird is a rectangle.
+/**
+ * This only works for birds that are 1 line in height
+ * and when the obstacles are rectangular.
+ * Its easy to change it to support k lines in height
+ * but it would only work if the bird is a rectangle.
+ */
 unsigned char is_bird_crashing_against_obstacles(void) {
 	int xobs1, x1 = b.x + get_bird_size();
 	unsigned int i;
@@ -135,7 +137,7 @@ void init_controller_listener(void) {
 	pthread_mutex_init(&bird_acc_mutex, NULL);
 	rc = pthread_create(&tid, NULL, &listen_controller, NULL);
 	if (rc) {
-		fprintf(stderr, "cant create new thread! error code %d", rc);
+		fprintf(stderr, "cant create new posix thread! error code %d", rc);
 		endwin();
 		exit(1);
 	}

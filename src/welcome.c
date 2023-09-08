@@ -6,6 +6,10 @@
 #include "game.h"
 #include "keys.h"
 
+#define FFLAPPY_SRC "src/res/title.txt"
+#define INST_SRC "src/res/instructions.txt"
+#define CREDITS_SRC "src/res/credits.txt"
+
 WINDOW *wscore = NULL;
 
 void print_file(char *filename, unsigned int x, unsigned int y) {
@@ -39,9 +43,6 @@ int count_chars(FILE *fp) {
 }
 
 void print_title_screen() {
-	#define FFLAPPY_SRC "res/title.txt"
-	#define INST_SRC "res/instructions.txt"
-	#define CREDITS_SRC "res/credits.txt"
 	print_file(FFLAPPY_SRC, 0, 0);
 	print_file(INST_SRC, 0, 20);
 	print_file(CREDITS_SRC, 0, 30);

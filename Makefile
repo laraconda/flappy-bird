@@ -1,16 +1,25 @@
-# Makefile
-LDFLAGS=-lncurses -lpthread -lm
+LDFLAGS = -lncurses -lpthread -lm
+SRC_DIR = src
+OBJ_DIR = build
 
-flappy: obstacles.o bird.o game.o welcome.o
-	cc -o flappy obstacles.o bird.o game.o welcome.o $(LDFLAGS)
-obstacles.o: obstacles.c obstacles.h nwindows.h
-	cc -c obstacles.c
-bird.o: bird.c bird.c bird.h
-	cc -c bird.c
-game.o: game.c externs.h bird.h obstacles.h keys.h nwindows.h
-	cc -c game.c
-welcome.o: welcome.c externs.h game.h keys.h
-	cc -c welcome.c
+$(OBJ_DIR)/flappy: $(OBJ_DIR)/obstacles.o $(OBJ_DIR)/bird.o $(OBJ_DIR)/game.o $(OBJ_DIR)/welcome.o
+	cc -o $(OBJ_DIR)/flappy $^ $(LDFLAGS)
+
+$(OBJ_DIR)/obstacles.o: $(SRC_DIR)/obstacles.c $(SRC_DIR)/obstacles.h $(SRC_DIR)/nwindows.h
+	cc -c $< -o $@
+
+$(OBJ_DIR)/bird.o: $(SRC_DIR)/bird.c $(SRC_DIR)/bird.h
+	cc -c $< -o $@
+
+$(OBJ_DIR)/game.o: $(SRC_DIR)/game.c $(SRC_DIR)/externs.h $(SRC_DIR)/bird.h $(SRC_DIR)/obstacles.h $(SRC_DIR)/keys.h $(SRC_DIR)/nwindows.h
+	cc -c $< -o $@
+
+$(OBJ_DIR)/welcome.o: $(SRC_DIR)/welcome.c $(SRC_DIR)/externs.h $(SRC_DIR)/game.h $(SRC_DIR)/keys.h
+	cc -c $< -o $@
 
 clean:
-	rm *.o flappy
+	rm -r $(OBJ_DIR)
+
+$(shell mkdir -p $(OBJ_DIR))
+
+.PHONY: clean
