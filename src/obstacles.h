@@ -5,6 +5,9 @@ struct obstacle {
     int y;
 };
 
+/*
+ * Represents a top and botton pair of obstacles
+ */
 struct pair_of_obstacles {
     int x;
     struct obstacle obs_a;

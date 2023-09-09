@@ -7,8 +7,6 @@
 #include "keys.h"
 #include "helpers.h"
 
-WINDOW *wscore = NULL;
-
 
 void print_title() {
     char* title =
@@ -19,11 +17,11 @@ void print_title() {
         " `--'  `--' `--`--'|  |-' |  |-'.-'  /    \n"
         "                   `--'   `--'  `---'     \n"
         "                                          \n"
-        "    ,--.   ,--.          ,--.             \n"
-        "    |  |-. `--',--.--. ,-|  |             \n"
-        "    | .-. ',--.|  .--'' .-. |             \n"
-        "    | `-' ||  ||  |   \\ `-' |             \n"
-        "     `---' `--'`--'    `---'              \n"
+        "      ,--.   ,--.          ,--.           \n"
+        "      |  |-. `--',--.--. ,-|  |           \n"
+        "      | .-. ',--.|  .--'' .-. |           \n"
+        "      | `-' ||  ||  |   \\ `-' |           \n"
+        "       `---' `--'`--'    `---'            \n"
         "                                          \n"
         "                                          \n"
         "       PRESS SPACEBAR TO JUMP/START       \n"
@@ -35,12 +33,12 @@ void print_title() {
 
 unsigned char do_you_want_to_play(void) {
 	while(1) {
-	char ch = getch();
+	    char ch = getch();
 		if (ch == SPACEBAR)
-			return 1;
+	        return 1;
 		else if (ch == ESC)
-			return 0;
-	usleep(100000);
+            return 0;
+        usleep(100000);
 	}
 }
 
@@ -61,7 +59,7 @@ int main (void) {
 	// or press ESC to quit
 	if (do_you_want_to_play()) {
 		clear();
-		start_game();
+		game_loop();
 	}
 	endwin();
 }

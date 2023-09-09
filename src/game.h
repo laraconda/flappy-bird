@@ -1,1 +1,1 @@
-void start_game(void);
+void game_loop(void);
