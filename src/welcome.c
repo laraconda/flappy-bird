@@ -5,47 +5,32 @@
 #include "externs.h"
 #include "game.h"
 #include "keys.h"
-
-#define FFLAPPY_SRC "src/res/title.txt"
-#define INST_SRC "src/res/instructions.txt"
-#define CREDITS_SRC "src/res/credits.txt"
+#include "helpers.h"
 
 WINDOW *wscore = NULL;
 
-void print_file(char *filename, unsigned int x, unsigned int y) {
-	FILE *fp;
-	if ((fp = fopen(filename, "r")) != NULL) {
-		char final_str[count_chars(fp)];
-		size_t i = 0;
-		int c;
-		for (c = getc(fp); c != EOF; c = getc(fp))
-			final_str[i++] = c;
-		mvprintw(y, x, final_str);
-		fclose(fp);
-	} else {
-		fprintf(stderr, "cant open file: %s", filename);
-		endwin();
-		exit(1);
-	}
-}
 
-int count_chars(FILE *fp) {
-	unsigned int chars = 0;
-	int c;
-	for (c = getc(fp); c != EOF; c = getc(fp))
-		chars++;
-	if (fseek(fp, 0L, SEEK_SET) != 0) {
-		fprintf(stderr, "Repositioning error.");
-		endwin();
-		exit(1);
-	}
-	return chars;
-}
+void print_title() {
+    char* title =
+        "  ,---.,--.                               \n"
+        " /  .-'|  | ,--,--. ,---.  ,---.,--. ,--. \n"
+        " |  `-,|  |' ,-.  || .-. || .-. |\\  '  /  \n"
+        " |  .-'|  |\\ '-'  || '-' '| '-' ' \\   '   \n"
+        " `--'  `--' `--`--'|  |-' |  |-'.-'  /    \n"
+        "                   `--'   `--'  `---'     \n"
+        "                                          \n"
+        "    ,--.   ,--.          ,--.             \n"
+        "    |  |-. `--',--.--. ,-|  |             \n"
+        "    | .-. ',--.|  .--'' .-. |             \n"
+        "    | `-' ||  ||  |   \\ `-' |             \n"
+        "     `---' `--'`--'    `---'              \n"
+        "                                          \n"
+        "                                          \n"
+        "       PRESS SPACEBAR TO JUMP/START       \n"
+        "             PRESS ESC TO EXIT            \n";
 
-void print_title_screen() {
-	print_file(FFLAPPY_SRC, 0, 0);
-	print_file(INST_SRC, 0, 20);
-	print_file(CREDITS_SRC, 0, 30);
+
+    print_string_middle_screen(title);
 }
 
 unsigned char do_you_want_to_play(void) {
@@ -69,7 +54,7 @@ void config_ncurses(void) {
 int main (void) {
 	config_ncurses();
 
-	print_title_screen();
+	print_title();
 	refresh();
 
 	// wait for the player to press start

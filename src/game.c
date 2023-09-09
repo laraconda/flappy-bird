@@ -163,7 +163,7 @@ void print_death_message(void) {
 		STD_WIN.height/2, STD_WIN.width/2, "YOU JUST DIED BOI");
 	print_score_message();	
 	refresh();
-	sleep(2);
+	sleep(3);
 }
 
 void update_STD_WIN(
