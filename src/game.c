@@ -28,7 +28,7 @@ struct WIN_pos_size STD_WIN;
 
 pthread_mutex_t bird_acc_mutex;
 
-unsigned char alive;
+bool alive;
 unsigned long score;
 
 struct bird bird;
@@ -58,7 +58,7 @@ char* get_score_message(void) {
 }
 
 /*
- * Updates the score window with the current score
+ * Updates the score window with the current score.
  */
 void update_score_window(void) {
 	wclear(score_window);
@@ -105,8 +105,8 @@ unsigned char is_bird_crashing_against_obstacles(void) {
 	int y0, y1;
 	for (i = 0; i<n_obstacles; i++) {
 		xobs1 = obstacle_pairs[i].x + obs_sett.width;
-		y0 = obstacle_pairs[i].obs_a.y;
-		y1 = obstacle_pairs[i].obs_b.y;
+		y0 = obstacle_pairs[i].top_obstacle.y;
+		y1 = obstacle_pairs[i].bottom_obstacle.y;
 		if (((x1 >= obstacle_pairs[i].x && bird.x <= obstacle_pairs[i].x) ||
 			(bird.x <= xobs1 && x1 >= xobs1)) &&
 			((bird.y >= y0 && bird.y >= y1) || (bird.y <= y1 && bird.y <= y0))
@@ -130,11 +130,17 @@ unsigned char is_bird_outside_bounds(void) {
  * or has crashed against an obstacle it is marked as dead.
  */
 void check_dead(void) {
-	if (is_bird_outside_bounds() ||
-		is_bird_crashing_against_obstacles())
-		alive = 0;
+	if (
+        is_bird_outside_bounds() ||
+		is_bird_crashing_against_obstacles()
+    ) {
+		alive = false;
+    }
 }
 
+/*
+ * Performs the periodic events the game needs to run.
+ */
 void periodic_events(void) {
 	accelerate_bird();
 	advance_obstacles(STD_WIN, obstacle_pairs, n_obstacles, obs_sett);
@@ -171,7 +177,7 @@ void init_controller_listener(void) {
 }
 
 /*
- * Prints a frame of the game
+ * Clears the screen and prints a frame of the game.
  */
 void print_game_frame(void) {	
 	clear();
@@ -237,6 +243,9 @@ void set_up_windows(void) {
     wrefresh(score_window);
 }
 
+/* 
+ * Creates a struct containing the settings for the obstacles.
+ */
 void fill_obstacle_settings(void) {
 	obs_sett.width = OBSTACLE_WIDTH;
 	obs_sett.spacing = OBSTACLE_SPACING;
@@ -245,19 +254,21 @@ void fill_obstacle_settings(void) {
 		MAX_Y_DIFF_BETWEEN_NEIGHBORS;
 }
 
+/*
+ * Allocates memory for the obstacles and initializes them.
+ */
 void set_up_obstacles(void) {
 	fill_obstacle_settings();
-
 	n_obstacles = (
-		STD_WIN.width / (obs_sett.width + obs_sett.spacing)) + 1;
-
+		STD_WIN.width / (obs_sett.width + obs_sett.spacing)
+    ) + 1;
 	obstacle_pairs = malloc(n_obstacles * sizeof(struct pair_of_obstacles));
 	init_obstacles(STD_WIN, obstacle_pairs, n_obstacles, obs_sett);
 }
 
 /*
  * Destroys the mutex for the bird.
- * Frees the memory of the obstacles
+ * Frees the memory of the obstacles.
  */
 void clean_after_game(void) {
     clear();
@@ -269,7 +280,7 @@ void clean_after_game(void) {
  * Initializes the conditions for a fresh game.
  */
 void init_game_state() {
-    alive = 1;
+    alive = true;
     score = 0;
     // Initial bird position (y, x) and acceleration
     bird = (struct bird){10, 2, 1.0}; 
