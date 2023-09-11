@@ -9,17 +9,11 @@
 #include "nwindows.h"
 #include "helpers.h"
 #include "game.h"
+#include "settings.h"
 
-#define FPS 15 // frames per second
 #define SECOND_IN_MICROSECONDS 1000000
 #define SPEED SECOND_IN_MICROSECONDS / FPS
 
-#define OBSTACLE_WIDTH 6
-#define OBSTACLE_SPACING 20
-#define MIN_VERTICAL_GAP 10
-#define MAX_Y_DIFF_BETWEEN_NEIGHBORS 15
-
-#define MAX_ACC 3.8
 
 WINDOW *score_window;
 
@@ -139,9 +133,19 @@ void check_dead(void) {
 }
 
 /*
+ * Clears the screen and prints a frame of the game.
+ */
+void print_game_frame(void) {	
+	clear();
+	print_obstacles(STD_WIN, obstacle_pairs, n_obstacles, obs_sett);
+	print_bird(&bird);
+}
+
+/*
  * Performs the periodic events the game needs to run.
  */
 void periodic_events(void) {
+    print_game_frame();
 	accelerate_bird();
 	advance_obstacles(STD_WIN, obstacle_pairs, n_obstacles, obs_sett);
 	move_bird(&bird);
@@ -174,15 +178,6 @@ void init_controller_listener(void) {
 		endwin();
 		exit(1);
 	}
-}
-
-/*
- * Clears the screen and prints a frame of the game.
- */
-void print_game_frame(void) {	
-	clear();
-	print_obstacles(STD_WIN, obstacle_pairs, n_obstacles, obs_sett);
-	print_bird(&bird);
 }
 
 /*void print_score_message(void) {
@@ -300,9 +295,7 @@ void game_loop(void) {
         init_game_state();
         init_controller_listener();
         while(alive) {
-            print_game_frame();
             periodic_events();
-            
             usleep(SPEED);
         }
         clean_after_game();	

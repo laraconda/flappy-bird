@@ -1,14 +1,13 @@
 #include <curses.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "externs.h"
 #include "game.h"
 #include "keys.h"
 #include "helpers.h"
+#include "welcome.h"
 
 
-void print_title() {
+void print_title(void) {
     char* title =
         "  ,---.,--.                               \n"
         " /  .-'|  | ,--,--. ,---.  ,---.,--. ,--. \n"
@@ -44,29 +43,12 @@ bool input_start_game(void) {
 }
 
 /*
- * Sets up ncurses.
+ * Presents the welcome screen.
  */
-void config_ncurses(void) {
-	initscr();
-	noecho();
-	cbreak();
-	curs_set(FALSE);
-}
-
-/*
- * Terminates ncourses.
- */
-void clean_before_exit() {
-    endwin();
-}
-
-int main (void) {
-	config_ncurses();
+void welcome_screen(void) {
 	print_title();
 	if (input_start_game()) {
 		clear();
 		game_loop();
 	}
-    clean_before_exit();
-    return 0;
 }
