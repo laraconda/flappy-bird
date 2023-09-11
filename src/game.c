@@ -38,7 +38,7 @@ struct pair_of_obstacles *obstacle_pairs;
 unsigned int n_obstacles;
 
 /*
- * Accelerated the bird towards the floor.
+ * Accelerates the bird towards the floor.
  */
 void accelerate_bird(void) {
 	if (bird.acc < MAX_ACC) {
@@ -57,6 +57,9 @@ char* get_score_message(void) {
 	return score_s;
 }
 
+/*
+ * Updates the score window with the current score
+ */
 void update_score_window(void) {
 	wclear(score_window);
 	char *score_message = get_score_message();
@@ -77,6 +80,10 @@ unsigned char is_there_an_obstacle_at(int x) {
     return 0;
 }
 
+/*
+ * Checks if the bird has cleared a new obstacle.
+ * Updates the score window if necessary.
+ */
 void refresh_score(void) {
 	if (is_there_an_obstacle_at(bird.x)) {
 		score += 1;
@@ -166,7 +173,7 @@ void init_controller_listener(void) {
 /*
  * Prints a frame of the game
  */
-void print_screen(void) {	
+void print_game_frame(void) {	
 	clear();
 	print_obstacles(STD_WIN, obstacle_pairs, n_obstacles, obs_sett);
 	print_bird(&bird);
@@ -180,21 +187,22 @@ void print_screen(void) {
 	free(score_message);
 }*/
 
-
-void try_again_or_exit_input() {
-    while (1) {
-        char ch = getch();
-        if (ch == SPACEBAR) {
-            game_loop();            
-        } else if (ch == ESC) {
-            endwin();                 
-        }
-        usleep(100000);
-    } 
+/*
+ * Waits for the user to decide to try again or exit the program.
+ */
+bool input_try_again() {
+    char ch = getch();
+    if (ch == SPACEBAR) {
+        return true;
+    } else if (ch == ESC) {
+        return false;
+    }
 }
 
+/*
+ * After the user dies, this screen is shown.
+ */
 void show_death_screen(void) {
-	clear();
     wclear(score_window);
     wrefresh(score_window);
     print_string_middle_screen(
@@ -206,9 +214,7 @@ void show_death_screen(void) {
     );
 	// print_score_message();	
 	refresh();
-    try_again_or_exit_input();
 }
-
 
 
 void update_STD_WIN(
@@ -219,6 +225,10 @@ void update_STD_WIN(
 	STD_WIN.height = height;
 }
 
+/*
+ * Sets up the windows for the game: the main window and the score
+ * window.
+ */
 void set_up_windows(void) {
 	wresize(stdscr, LINES - 1, COLS);
 	update_STD_WIN(0, 0, LINES - 1, COLS);
@@ -245,7 +255,12 @@ void set_up_obstacles(void) {
 	init_obstacles(STD_WIN, obstacle_pairs, n_obstacles, obs_sett);
 }
 
-void clean(void) {
+/*
+ * Destroys the mutex for the bird.
+ * Frees the memory of the obstacles
+ */
+void clean_after_game(void) {
+    clear();
 	pthread_mutex_destroy(&bird_acc_mutex);
 	free(obstacle_pairs);
 }
@@ -266,17 +281,21 @@ void init_game_state() {
  * periodically.
  */
 void game_loop(void) {
-	set_up_windows();
-	update_score_window();
-    
-    init_game_state();
-	init_controller_listener();
-	while(alive) {
-		print_screen();
-		periodic_events();
-		
-		usleep(SPEED);
-	}
-	clean();	
-	show_death_screen();
+    bool play = true;
+    while (play) {
+        set_up_windows();
+        update_score_window();
+        
+        init_game_state();
+        init_controller_listener();
+        while(alive) {
+            print_game_frame();
+            periodic_events();
+            
+            usleep(SPEED);
+        }
+        clean_after_game();	
+        show_death_screen();
+        play = input_try_again();
+    }
 }

@@ -29,19 +29,23 @@ void print_title() {
 
 
     print_string_middle_screen(title);
+	refresh();
 }
 
-unsigned char do_you_want_to_play(void) {
-	while(1) {
-	    char ch = getch();
-		if (ch == SPACEBAR)
-	        return 1;
-		else if (ch == ESC)
-            return 0;
-        usleep(100000);
-	}
+/*
+ * Waits for the user to decide to start the game or exit the program.
+ */
+bool input_start_game(void) {
+    char ch = getch();
+    if (ch == SPACEBAR)
+        return true;
+    else if (ch == ESC)
+        return false;
 }
 
+/*
+ * Sets up ncurses.
+ */
 void config_ncurses(void) {
 	initscr();
 	noecho();
@@ -49,17 +53,20 @@ void config_ncurses(void) {
 	curs_set(FALSE);
 }
 
+/*
+ * Terminates ncourses.
+ */
+void clean_before_exit() {
+    endwin();
+}
+
 int main (void) {
 	config_ncurses();
-
 	print_title();
-	refresh();
-
-	// wait for the player to press start
-	// or press ESC to quit
-	if (do_you_want_to_play()) {
+	if (input_start_game()) {
 		clear();
 		game_loop();
 	}
-	endwin();
+    clean_before_exit();
+    return 0;
 }
