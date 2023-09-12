@@ -206,14 +206,20 @@ bool input_try_again() {
 void show_death_screen(void) {
     wclear(score_window);
     wrefresh(score_window);
-    print_string_middle_screen(
+
+    attron(A_BOLD);
+    attron(COLOR_PAIR(COLOR_BLACK_D));
+    char* death_message =
         "     YOU JUST DIED BOI      \n"
         "                            \n"
         "                            \n"
         "PRESS SPACEBAR TO PLAY AGAIN\n"
-        "     PRESS ESC TO EXIT      \n"
-    );
-	// print_score_message();	
+        "     PRESS ESC TO EXIT      \n";
+    print_string_middle_screen(death_message);
+    attroff(COLOR_PAIR(COLOR_BLACK_D));
+    attroff(A_BOLD);
+	
+    // print_score_message();	
 	refresh();
 }
 

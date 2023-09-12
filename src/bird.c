@@ -2,15 +2,17 @@
 #include <math.h>
 
 #include "bird.h"
+#include "settings.h"
 
-#define BIRD_REPR "(OvO)"
 
-char *get_bird_repr(void) {
-	    return BIRD_REPR;
+char* get_bird_repr(void) {
+    return BIRD_REPR;
 }
 
 void print_bird(struct bird *b) {
+    attron(COLOR_PAIR(COLOR_YELLOW_D));
 	mvprintw(b->y, b->x, get_bird_repr());
+    attroff(COLOR_PAIR(COLOR_YELLOW_D));
 	refresh();
 }
 

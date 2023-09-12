@@ -5,6 +5,7 @@
 
 #include "nwindows.h"
 #include "obstacles.h"
+#include "settings.h"
 
 /*
  * Inits a single pair of obstacles.
@@ -169,8 +170,10 @@ void print_obstacles(
     unsigned int n_obstacles,
     struct obstacles_settings sett
 ) {
+    attron(COLOR_PAIR(COLOR_GREEN_D));
     for (int i=0; i<n_obstacles; i++) {
         print_obstacle(win, pairs, i, sett);
     }
+    attroff(COLOR_PAIR(COLOR_GREEN_D));
 }
 

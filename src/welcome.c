@@ -1,10 +1,13 @@
 #include <curses.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "externs.h"
 #include "game.h"
 #include "keys.h"
 #include "helpers.h"
 #include "welcome.h"
+#include "settings.h"
 
 
 void print_title(void) {
@@ -22,13 +25,22 @@ void print_title(void) {
         "      | `-' ||  ||  |   \\ `-' |           \n"
         "       `---' `--'`--'    `---'            \n"
         "                                          \n"
-        "                                          \n"
-        "       PRESS SPACEBAR TO JUMP/START       \n"
-        "             PRESS ESC TO EXIT            \n";
+        "                                          \n";
+    char* instructions = 
+        "      PRESS SPACEBAR TO JUMP/START        \n"
+        "            PRESS ESC TO EXIT             \n";
 
+    attron(COLOR_PAIR(COLOR_CYAN_D));
+    attron(A_BOLD);
+    int lasty = print_string_middle_screen(title);
+    attroff(COLOR_PAIR(COLOR_CYAN_D));
+    
+    attron(COLOR_PAIR(COLOR_BLACK_D));
+    print_string_centered_x_axis(instructions, lasty + 2);
+    attroff(COLOR_PAIR(COLOR_BLACK_D));
+    attroff(A_BOLD);
 
-    print_string_middle_screen(title);
-	refresh();
+    refresh();
 }
 
 /*

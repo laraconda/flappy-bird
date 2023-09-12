@@ -1,3 +1,5 @@
+#define BIRD_REPR "<(UvU)>"
+
 struct bird {
     int x;
     int y;
