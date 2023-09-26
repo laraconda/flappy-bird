@@ -43,6 +43,9 @@ void accelerate_bird(void) {
 	}
 }
 
+/*
+ * Returns the string that comunicates the score
+ */
 char* get_score_message(void) {
 	char *score_s_template = "SCORE: %lu";
 	int buff_size = snprintf(NULL, 0, score_s_template, score);
@@ -296,9 +299,9 @@ void game_loop(void) {
     bool play = true;
     while (play) {
         set_up_windows();
-        update_score_window();
         
         init_game_state();
+        update_score_window();
         init_controller_listener();
         while(alive) {
             periodic_events();
