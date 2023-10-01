@@ -52,6 +52,9 @@ bool input_start_game(void) {
         return true;
     else if (ch == ESC)
         return false;
+    else if (ch == ERR) {
+        return true;   
+    }
 }
 
 /*

@@ -9,6 +9,7 @@
  */
 void config_ncurses(void) {
 	initscr();
+    nodelay(stdscr, true);
     start_color();
     use_default_colors();
     init_pair(COLOR_RED_D, COLOR_RED, -1);

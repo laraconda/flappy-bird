@@ -1,4 +1,3 @@
-#include <pthread.h>
 #include <curses.h>
 #include <stdlib.h>
 
@@ -20,8 +19,6 @@ WINDOW *score_window;
 struct WIN_pos_size STD_WIN;
 
 
-pthread_mutex_t bird_acc_mutex;
-
 bool alive;
 unsigned long score;
 
@@ -36,10 +33,8 @@ unsigned int n_obstacles;
  */
 void accelerate_bird(void) {
 	if (bird.acc < MAX_ACC) {
-		pthread_mutex_lock(&bird_acc_mutex);
 		bird.acc += 0.6; 
         bird.acc = bird.acc > MAX_ACC ? MAX_ACC : bird.acc;
-		pthread_mutex_unlock(&bird_acc_mutex);
 	}
 }
 
@@ -144,43 +139,26 @@ void print_game_frame(void) {
 	print_bird(&bird);
 }
 
+void listen_jump_controller() {
+    char ch = getch();
+    if (ch == SPACEBAR) {
+        bird.acc = -3.0; 
+    } else if (ch == ESC) {
+        alive = 0;
+    }
+}
+
 /*
  * Performs the periodic events the game needs to run.
  */
 void periodic_events(void) {
     print_game_frame();
+    listen_jump_controller();
 	accelerate_bird();
 	advance_obstacles(STD_WIN, obstacle_pairs, n_obstacles, obs_sett);
 	move_bird(&bird);
 	refresh_score();
 	check_dead();
-}
-
-void *listen_controller(void * arg) {
-	while(alive) {
-		char ch = getch();
-		if (ch == SPACEBAR) {
-			pthread_mutex_lock(&bird_acc_mutex);
-			bird.acc = -3.0; 
-			pthread_mutex_unlock(&bird_acc_mutex);
-		} else if (ch == ESC) 
-			alive = 0;
-		usleep(SPEED);
-	}
-
-	pthread_exit(NULL);
-}
-
-void init_controller_listener(void) {
-	int rc;
-	pthread_t tid;
-	pthread_mutex_init(&bird_acc_mutex, NULL);
-	rc = pthread_create(&tid, NULL, &listen_controller, NULL);
-	if (rc) {
-		fprintf(stderr, "cant create new posix thread! error code %d", rc);
-		endwin();
-		exit(1);
-	}
 }
 
 /*void print_score_message(void) {
@@ -200,6 +178,8 @@ bool input_try_again() {
         return true;
     } else if (ch == ESC) {
         return false;
+    } else if (ch == ERR) {
+        return false; 
     }
 }
 
@@ -276,7 +256,6 @@ void set_up_obstacles(void) {
  */
 void clean_after_game(void) {
     clear();
-	pthread_mutex_destroy(&bird_acc_mutex);
 	free(obstacle_pairs);
 }
 
@@ -302,7 +281,6 @@ void game_loop(void) {
         
         init_game_state();
         update_score_window();
-        init_controller_listener();
         while(alive) {
             periodic_events();
             usleep(SPEED);
