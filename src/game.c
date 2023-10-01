@@ -139,6 +139,10 @@ void print_game_frame(void) {
 	print_bird(&bird);
 }
 
+/*
+ * Controls the bird according to the user input.
+ * If ESC is pressed, it kills the bird and thus the game ends.
+ */
 void listen_jump_controller() {
     char ch = getch();
     if (ch == SPACEBAR) {
@@ -161,14 +165,6 @@ void periodic_events(void) {
 	check_dead();
 }
 
-/*void print_score_message(void) {
-	char *score_message = get_score_message();
-	mvprintw(
-		(STD_WIN.height/2) + 1, STD_WIN.width/2, score_message);
-	refresh();
-	free(score_message);
-}*/
-
 /*
  * Waits for the user to decide to try again or exit the program.
  */
@@ -178,8 +174,6 @@ bool input_try_again() {
         return true;
     } else if (ch == ESC) {
         return false;
-    } else if (ch == ERR) {
-        return false; 
     }
 }
 
@@ -187,6 +181,7 @@ bool input_try_again() {
  * After the user dies, this screen is shown.
  */
 void show_death_screen(void) {
+    nodelay(stdscr, false);  // making getch blocking
     wclear(score_window);
     wrefresh(score_window);
 
@@ -198,11 +193,12 @@ void show_death_screen(void) {
         "                            \n"
         "PRESS SPACEBAR TO PLAY AGAIN\n"
         "     PRESS ESC TO EXIT      \n";
-    print_string_middle_screen(death_message);
+    int last_line = print_string_middle_screen(death_message);
+    char* score_message = get_score_message();
+    print_string_centered_x_axis(score_message, last_line + 3);
+    free(score_message);
     attroff(COLOR_PAIR(COLOR_BLACK_D));
     attroff(A_BOLD);
-	
-    // print_score_message();	
 	refresh();
 }
 
@@ -277,6 +273,7 @@ void init_game_state() {
 void game_loop(void) {
     bool play = true;
     while (play) {
+        nodelay(stdscr, true);
         set_up_windows();
         
         init_game_state();

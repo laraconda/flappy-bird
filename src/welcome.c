@@ -48,12 +48,10 @@ void print_title(void) {
  */
 bool input_start_game(void) {
     char ch = getch();
-    if (ch == SPACEBAR)
+    if (ch == SPACEBAR) {
         return true;
-    else if (ch == ESC)
+    } else if (ch == ESC) {
         return false;
-    else if (ch == ERR) {
-        return true;   
     }
 }
 
@@ -61,6 +59,7 @@ bool input_start_game(void) {
  * Presents the welcome screen.
  */
 void welcome_screen(void) {
+    nodelay(stdscr, false);
 	print_title();
 	if (input_start_game()) {
 		clear();
