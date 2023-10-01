@@ -12,8 +12,5 @@ To compile you need to have the following libraries:
 ### Cleaup
 `make clean`
 
-#### Posix threads
-Make sure your system is able to run **pthreads**.
-
 Just run `make` to compile, `make clean` to clean up afterwards.
 
