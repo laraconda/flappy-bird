@@ -1,6 +1,5 @@
 # Flappy Bird
 
-![Splash screen](media/splash.jpg)
 ![Demo GIF](media/demo.gif)
 
 C game based on flappy bird. Running on your terminal with ncurses!
